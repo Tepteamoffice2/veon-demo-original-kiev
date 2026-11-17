@@ -2,6 +2,8 @@
 import "../styles/tokens.css";
 import "../styles/global.css";
 import "../styles/site.css";
+import tekturCyr from "../assets/fonts/tektur-cyrillic-wght-normal.woff2?url";
+const base = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + "/";
 
 interface Props { lang: string; title: string; description: string; canonical?: string; ogImage?: string; ogLocale?: string; }
 const { lang, title, description, canonical, ogImage, ogLocale } = Astro.props;
@@ -16,8 +18,8 @@ const { lang, title, description, canonical, ogImage, ogLocale } = Astro.props;
     <meta name="description" content={description} />
     {canonical && <link rel="canonical" href={canonical} />}
     <meta name="robots" content="noindex" />
-    <link rel="icon" type="image/png" href="/logo-original-kiev.png" />
-    <link rel="preload" href="/fonts/tektur-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin data-rec="R-011" />
+    <link rel="icon" type="image/png" href={`${base}logo-original-kiev.png`} />
+    <link rel="preload" href={tekturCyr} as="font" type="font/woff2" crossorigin data-rec="R-011" />
     <meta property="og:type" content="website" data-rec="R-016" />
     <meta property="og:title" content={title} data-rec="R-016" />
     <meta property="og:description" content={description} data-rec="R-016" />

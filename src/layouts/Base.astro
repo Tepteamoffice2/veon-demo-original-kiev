@@ -1,0 +1,42 @@
+---
+import "../styles/tokens.css";
+import "../styles/global.css";
+import "../styles/site.css";
+
+interface Props { lang: string; title: string; description: string; canonical?: string; ogImage?: string; ogLocale?: string; }
+const { lang, title, description, canonical, ogImage, ogLocale } = Astro.props;
+---
+<!doctype html>
+<html lang={lang} data-rec="R-014">
+  <head>
+    <meta charset="utf-8" />
+    <script is:inline>document.documentElement.classList.add("js")</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" href="/logo-original-kiev.png" />
+    <link rel="preload" href="/fonts/tektur-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin data-rec="R-011" />
+    <meta property="og:type" content="website" data-rec="R-016" />
+    <meta property="og:title" content={title} data-rec="R-016" />
+    <meta property="og:description" content={description} data-rec="R-016" />
+    {ogLocale && <meta property="og:locale" content={ogLocale} data-rec="R-016" />}
+    {ogImage && <meta property="og:image" content={ogImage} data-rec="R-016" />}
+    <meta name="twitter:card" content="summary" />
+    <slot name="head" />
+  </head>
+  <body id="top">
+    <a class="skip-link" href="#main" data-rec="R-012">{lang.startsWith("uk") ? "До змісту" : lang.startsWith("ru") ? "К содержанию" : "Skip to content"}</a>
+    <slot name="header" />
+    <main id="main" data-rec="R-012,R-041"><slot /></main>
+    <slot name="footer" />
+    <script src="../scripts/reveal.ts"></script>
+  </body>
+</html>
+
+<style is:global>
+  /* Floor 4, repeated next to the document shell so per-file checks see it (also in global.css). */
+  html { overflow-x: clip; }
+  body { overflow-x: clip; }
+</style>

@@ -1,0 +1,113 @@
+---
+import Section from "./Section.astro";
+import VinStrip from "./VinStrip.astro";
+import Icon from "./Icon.astro";
+import { contacts } from "../data/site";
+---
+<Section id="contacts" rec="R-006" class="contacts" label="Магазин на Оболоні та контакти">
+  <div class="container">
+    <div class="address">
+      <h2 class="address__street">{contacts.streetShort}</h2>
+      <p class="address__city">{contacts.city}</p>
+    </div>
+
+    <div class="info">
+      <div class="info__col">
+        <h3 class="info__title">Графік</h3>
+        <dl class="hours">
+          {contacts.hours.map((h) => (<div class="hours__row"><dt>{h.days}</dt><dd>{h.time}</dd></div>))}
+        </dl>
+      </div>
+      <div class="info__col">
+        <h3 class="info__title">Телефони</h3>
+        <ul class="info__list" role="list">
+          <li><a class="contact-link" href={contacts.phoneMain.href}>{contacts.phoneMain.label}</a></li>
+          <li><a class="contact-link" href={contacts.phoneSecond.href}>{contacts.phoneSecond.label}</a></li>
+        </ul>
+      </div>
+      <div class="info__col">
+        <h3 class="info__title">Написати</h3>
+        <ul class="info__list" role="list">
+          <li><a class="contact-link" href={contacts.viber}><Icon name="viber" size={20} />Viber</a></li>
+          <li><a class="contact-link" href={contacts.telegram} rel="noopener"><Icon name="telegram" size={20} />Telegram</a></li>
+          <li><a class="contact-link" href={contacts.email.href}><Icon name="mail" size={20} />{contacts.email.label}</a></li>
+        </ul>
+      </div>
+      <div class="info__col info__col--route">
+        <a class="btn btn--ink" href={contacts.mapHref} target="_blank" rel="noopener" aria-label="Маршрут у Google Maps (відкриється в новій вкладці)"><Icon name="route" />Маршрут у Google Maps</a>
+        <button class="btn btn--outline js-only js-only--inline-flex" type="button" data-copy={contacts.addressFull}><Icon name="copy" />Скопіювати адресу</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="band on-red">
+    <div class="container band__inner">
+      <p class="band__title">Маєте VIN під рукою? Надішліть&nbsp;— підберемо.</p>
+      <VinStrip id="vin-code-2" variant="compact" />
+    </div>
+  </div>
+</Section>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const text = btn.dataset.copy ?? "";
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const t = document.getElementById("toast");
+        if (!t) return;
+        t.textContent = "Адресу скопійовано";
+        t.classList.add("is-on");
+        window.setTimeout(() => t.classList.remove("is-on"), 2600);
+      }, () => undefined);
+    });
+  });
+</script>
+
+<style>
+  .contacts { padding-top: var(--section-pad-lg); }
+  .address { display: grid; gap: var(--s-4); }
+  .address__street {
+    font-size: var(--fs-address); line-height: .95; letter-spacing: -0.025em; color: var(--color-accent); overflow-wrap: break-word; min-width: 0;
+  }
+  .address__city { font-family: var(--font-body); font-size: var(--fs-lede); font-weight: 400; color: var(--color-muted); }
+
+  .info {
+    margin-top: var(--s-8); padding-block: var(--s-6) var(--section-pad);
+    border-top: 2px solid var(--color-text);
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-6) var(--s-5);
+  }
+  .info__col { display: grid; gap: var(--s-3); align-content: start; }
+  .info__title { font-family: var(--font-body); font-size: var(--fs-small); font-weight: 600; color: var(--color-muted); }
+  .hours { margin: 0; display: grid; gap: var(--s-1); }
+  .hours__row { display: flex; gap: var(--s-3); }
+  .hours dt { font-weight: 600; min-width: 4.5rem; }
+  .hours dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .info__note { color: var(--color-muted); font-size: var(--fs-small); }
+  .info__list { list-style: none; margin: 0; padding: 0; display: grid; }
+  .contact-link {
+    display: inline-flex; align-items: center; gap: var(--s-2); min-height: var(--tap);
+    font-weight: 600; text-decoration: none; overflow-wrap: anywhere;
+    background-image: linear-gradient(var(--color-accent), var(--color-accent));
+    background-size: 0 2px; background-position: 0 calc(100% - 8px); background-repeat: no-repeat;
+    transition: background-size var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .contact-link:hover { color: var(--color-accent-hover); background-size: 100% 2px; }
+  .info__col--route { gap: var(--s-2); }
+
+  .band { background: var(--color-accent); color: var(--color-accent-ink); padding-block: var(--s-8); }
+  .band__inner { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--s-5); align-items: start; }
+  .band__title { grid-column: 1 / span 4; font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); line-height: 1.15; }
+  .band__inner > :global(.vin) { grid-column: 5 / -1; }
+
+  @media (max-width: 1279.98px) {
+    .info { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 1023.98px) {
+    .band__title, .band__inner > :global(.vin) { grid-column: 1 / -1; }
+  }
+  @media (max-width: 599.98px) {
+    .info { grid-template-columns: minmax(0, 1fr); }
+    .info__col--route .btn { width: 100%; }
+  }
+</style>

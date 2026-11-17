@@ -1,0 +1,54 @@
+---
+import Section from "./Section.astro";
+import FutureLink from "./FutureLink.astro";
+import Icon from "./Icon.astro";
+import { contacts } from "../data/site";
+---
+<Section id="sto" rec="R-005" class="sto on-ink">
+  <div class="container sto__grid">
+    <div class="sto__intro section-head">
+      <h2>Для СТО&nbsp;— партнерські тарифи й&nbsp;менеджер</h2>
+      <p>Працюємо з СТО за тарифами «Стандарт» і «Pro+». Подайте заявку&nbsp;— менеджер перевірить дані та підключить.</p>
+    </div>
+    <div class="sto__terms">
+      <h3 class="sto__terms-title">Що отримує партнер</h3>
+      <ul class="sto__list" role="list">
+        <li>Кращі ціни</li>
+        <li>Пріоритет у роботі</li>
+        <li>Підбір за VIN</li>
+        <li>Резерв деталей</li>
+        <li>Відстрочка платежу</li>
+        <li>Персональний менеджер</li>
+      </ul>
+    </div>
+    <div class="sto__actions">
+      <FutureLink note="Анкета з'явиться в повній версії сайту" class="future-link--btn sto__apply">Стати партнером</FutureLink>
+      <a class="btn btn--outline" href={contacts.phoneMain.href}><Icon name="phone" />Подзвонити</a>
+      <a class="btn btn--outline" href={contacts.telegram} rel="noopener"><Icon name="telegram" />Написати в Telegram</a>
+    </div>
+  </div>
+</Section>
+
+<style>
+  .sto { background: var(--color-ink); color: var(--color-on-dark); padding-block: var(--section-pad-lg); }
+  .sto__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--s-7) var(--s-5); align-items: start; }
+  .sto__intro { grid-column: 1 / span 7; }
+  .sto__terms { grid-column: 9 / -1; grid-row: 1 / span 2; display: grid; gap: var(--s-4); padding-top: var(--s-2); }
+  .sto__terms-title { font-family: var(--font-body); font-size: var(--fs-body); font-weight: 600; color: var(--color-on-dark-muted); }
+  .sto__list { list-style: none; margin: 0; padding: 0; display: grid; }
+  .sto__list li {
+    font-family: var(--font-display); font-weight: 600; font-size: clamp(1.25rem, 0.9rem + 1vw, 1.75rem); line-height: 1.2;
+    padding-block: var(--s-3); border-bottom: 1px solid var(--color-line-on-ink);
+  }
+  .sto__list li:first-child { border-top: 1px solid var(--color-line-on-ink); }
+  .sto__actions { grid-column: 1 / span 8; display: flex; flex-wrap: wrap; gap: var(--s-3); }
+  .sto :global(.sto__apply .future-link__note[aria-hidden="true"]) { left: 0; transform: translate(0, -4px); background: var(--color-on-dark); color: var(--color-ink); }
+  .sto :global(.sto__apply:hover .future-link__note), .sto :global(.sto__apply:focus-visible .future-link__note) { transform: translate(0, 0); }
+
+  @media (max-width: 1023.98px) {
+    .sto__intro, .sto__terms, .sto__actions { grid-column: 1 / -1; grid-row: auto; }
+  }
+  @media (max-width: 599.98px) {
+    .sto__actions { display: grid; }
+  }
+</style>

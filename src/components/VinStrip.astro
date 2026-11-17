@@ -1,0 +1,206 @@
+---
+// Signature: a real VIN input drawn as 17 cells. Not a form and not a fake send:
+// the buttons are plain links to the client's Viber / Telegram chats; with scripts on,
+// a typed VIN is copied to the clipboard first so the visitor can paste it into the chat.
+import Icon from "./Icon.astro";
+import { contacts } from "../data/site";
+
+interface Props { id: string; variant?: "hero" | "compact"; }
+const { id, variant = "hero" } = Astro.props;
+const cells = Array.from({ length: 17 }, (_, i) => i);
+const compact = variant === "compact";
+---
+<div class:list={["vin", `vin--${variant}`]} data-vin data-rec="R-043">
+  <div class="vin__top">
+    <label class="vin__label" for={id}>VIN-код — 17 знаків із техпаспорта</label>
+    <span class="vin__count js-only" id={`${id}-count`} aria-live="polite" data-vin-count>0 із 17</span>
+  </div>
+  <div class="vin__field">
+    <input
+      class="vin__input"
+      id={id}
+      name="vin"
+      type="text"
+      inputmode="text"
+      maxlength="17"
+      autocomplete="off"
+      autocapitalize="characters"
+      spellcheck="false"
+      aria-describedby={`${id}-count ${id}-error ${id}-hint`}
+      data-vin-input
+    />
+    <ol class="vin__cells" aria-hidden="true" role="list">
+      {cells.map((i) => <li class="vin__cell" style={`--i:${i}`}><span></span></li>)}
+    </ol>
+  </div>
+  <p class="vin__error" id={`${id}-error`} data-vin-error hidden>Літери I, O і Q у VIN-коді не використовуються.</p>
+
+  <div class="vin__actions">
+    <a class="btn btn--ink vin__main" href={contacts.viber} data-vin-send><Icon name="viber" />Надіслати VIN у Viber</a>
+    {compact ? (
+      <a class="btn btn--outline" href={contacts.telegram} rel="noopener" data-vin-send><Icon name="telegram" />Telegram</a>
+    ) : (
+      <>
+        <a class="btn btn--outline" href={contacts.telegram} rel="noopener" data-vin-send><Icon name="telegram" />Telegram</a>
+        <a class="text-link vin__call" href={contacts.phoneMain.href}><Icon name="phone" size={20} /><span>Подзвонити<span class="vin__call-num">&nbsp;{contacts.phoneMain.short}</span></span></a>
+      </>
+    )}
+  </div>
+  <p class="vin__hint js-only" id={`${id}-hint`}>Набраний VIN скопіюється сам — вставте його в чат.</p>
+</div>
+
+<script>
+  const BAD = /[IOQ]/;
+  const ALLOWED = /[^A-Z0-9]/g;
+  const toast = () => document.getElementById("toast");
+  let toastTimer = 0;
+
+  function notify(text: string) {
+    const el = toast();
+    if (!el) return;
+    el.textContent = text;
+    el.classList.add("is-on");
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => el.classList.remove("is-on"), 3200);
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-vin]").forEach((root) => {
+    const input = root.querySelector<HTMLInputElement>("[data-vin-input]");
+    const cells = Array.from(root.querySelectorAll<HTMLElement>(".vin__cell"));
+    const count = root.querySelector<HTMLElement>("[data-vin-count]");
+    const error = root.querySelector<HTMLElement>("[data-vin-error]");
+    if (!input) return;
+
+    const render = () => {
+      const v = input.value;
+      cells.forEach((cell, i) => {
+        const ch = v[i] ?? "";
+        const span = cell.firstElementChild as HTMLElement;
+        if (span.textContent !== ch) {
+          span.textContent = ch;
+          cell.classList.toggle("is-filled", ch !== "");
+          if (ch) { cell.classList.remove("is-new"); void cell.offsetWidth; cell.classList.add("is-new"); }
+        }
+        cell.classList.toggle("is-next", document.activeElement === input && i === Math.min(v.length, 16) && v.length < 17);
+      });
+      if (count) count.textContent = `${v.length} із 17`;
+      root.classList.toggle("is-complete", v.length === 17);
+    };
+
+    const flagError = (on: boolean) => {
+      if (!error) return;
+      error.hidden = !on;
+      input.setAttribute("aria-invalid", on ? "true" : "false");
+      if (on) {
+        const cell = cells[Math.min(input.value.length, 16)];
+        cell?.classList.remove("is-shake"); void cell?.offsetWidth; cell?.classList.add("is-shake");
+      }
+    };
+
+    input.addEventListener("input", () => {
+      const raw = input.value.toUpperCase();
+      const hadBad = BAD.test(raw);
+      const clean = raw.replace(ALLOWED, "").replace(/[IOQ]/g, "").slice(0, 17);
+      if (input.value !== clean) input.value = clean;
+      flagError(hadBad);
+      render();
+    });
+    input.addEventListener("focus", render);
+    input.addEventListener("blur", render);
+
+    root.querySelectorAll<HTMLAnchorElement>("[data-vin-send]").forEach((link) => {
+      link.addEventListener("click", () => {
+        const v = input.value;
+        if (!v || !navigator.clipboard) return;
+        navigator.clipboard.writeText(v).then(
+          () => notify("VIN скопійовано — вставте його в чат"),
+          () => undefined,
+        );
+      });
+    });
+    render();
+  });
+</script>
+
+<style>
+  .vin { --cell-gap: clamp(2px, 0.5vw, 8px); display: grid; gap: var(--s-3); max-width: 100%; }
+  .vin__top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-4); flex-wrap: wrap; }
+  .vin__label { font-weight: 600; font-size: var(--fs-body); }
+  .vin__count { margin-left: auto; font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; font-size: var(--fs-body); }
+  .vin__field { position: relative; }
+
+  /* Without scripts: a plain, readable input. With scripts: the input lies over the cells. */
+  .vin__input {
+    display: block; width: 100%; min-height: var(--btn-h);
+    padding: 0 var(--s-4);
+    font: 600 1.25rem/1 var(--font-display);
+    color: var(--color-ink); background: var(--color-on-dark);
+    border: 2px solid var(--color-on-dark); border-radius: var(--radius);
+  }
+  .vin__cells { display: none; }
+  :global(.js) .vin__cells {
+    display: grid; grid-template-columns: repeat(17, minmax(0, 1fr)); gap: var(--cell-gap);
+    margin: 0; padding: 0; list-style: none;
+  }
+  :global(.js) .vin__field { padding: var(--s-2); }
+  :global(.js) .vin__input {
+    position: absolute; inset: 0; z-index: 2; height: 100%; min-height: 0;
+    color: transparent; caret-color: transparent; background: transparent; border-color: var(--color-on-dark);
+    font-size: 16px; cursor: text;
+  }
+  :global(.js) .vin__input::selection { background: transparent; }
+  :global(.js) .vin__input:focus-visible { outline: 3px solid var(--color-ink); outline-offset: 0; box-shadow: none; }
+
+  .vin__cell {
+    position: relative; display: grid; place-items: center;
+    aspect-ratio: 3 / 4;
+    background: var(--color-cell-on-red);
+    box-shadow: inset 0 -3px 0 var(--color-on-dark);
+    clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(0.8rem, 0.2rem + 2.4vw, 2.25rem); line-height: 1;
+    color: var(--color-ink);
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+  .vin__cell.is-filled { background: var(--color-cell-filled); }
+  .vin__cell.is-next { background: var(--color-line-on-dark); }
+  .vin__cell.is-new span { animation: vin-drop 140ms var(--ease-out); }
+  .vin__cell.is-shake { animation: vin-shake 140ms linear 2; }
+
+  .vin__error { font-weight: 600; padding: var(--s-2) var(--s-3); background: var(--color-on-dark); color: var(--color-accent-hover); justify-self: start; }
+  .vin__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-4); margin-top: var(--s-3); }
+  .vin__hint { font-size: var(--fs-small); opacity: .92; }
+  .vin__call { color: var(--color-on-dark); }
+
+  /* Load: the 17 cells appear left to right (scripts on, motion allowed). The headline and buttons never wait. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .vin--hero .vin__cell { animation: vin-in 360ms var(--ease-out) backwards; animation-delay: calc(120ms + var(--i) * 20ms); }
+  }
+  @keyframes vin-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes vin-drop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @keyframes vin-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .vin__cell.is-new span, .vin__cell.is-shake { animation: none; }
+  }
+
+  /* Phone: the strip becomes a two-row board (9 + 8), cells stay big enough to read and tap. */
+  @media (max-width: 599.98px) {
+    .vin { --cut: 4px; --cell-gap: 4px; }
+    :global(.js) .vin__cells { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+    .vin__cell { aspect-ratio: 1 / 1.15; font-size: clamp(1rem, 0.4rem + 3.6vw, 1.5rem); }
+    .vin__actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-2); }
+    .vin__main { grid-column: 1 / -1; }
+    .vin__actions .btn { padding: 0 var(--s-3); }
+    .vin__call {
+      justify-content: center; min-height: var(--btn-h); border: 2px solid var(--color-on-dark);
+      text-decoration: none;
+    }
+    .vin__call-num { display: none; }
+    .vin--compact .vin__actions .btn { grid-column: 1 / -1; }
+  }
+  @media (max-width: 359.98px) {
+    .vin { --cell-gap: 3px; }
+  }
+
+  /* Compact variant (contacts band) */
+  .vin--compact .vin__cell { font-size: clamp(0.75rem, 0.2rem + 1.8vw, 1.5rem); }
+</style>

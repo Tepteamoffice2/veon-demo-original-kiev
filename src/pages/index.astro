@@ -1,0 +1,50 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import Catalog from "../components/Catalog.astro";
+import Delivery from "../components/Delivery.astro";
+import Guarantee from "../components/Guarantee.astro";
+import Sto from "../components/Sto.astro";
+import Contacts from "../components/Contacts.astro";
+import Footer from "../components/Footer.astro";
+import ContactBar from "../components/ContactBar.astro";
+import { contacts } from "../data/site";
+
+const title = "Автозапчастини за VIN-кодом у Києві — Original Kiev, Оболонь";
+const description =
+  "Підбір запчастин за VIN безкоштовно — у Viber чи Telegram. Оригінал і аналоги для 40 марок. Самовивіз на Оболоні, доставка по Києву та Новою поштою.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AutoPartsStore",
+  name: "Original Kiev",
+  telephone: ["+380680959365", "+380979396403"],
+  email: contacts.email.label,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "вул. Героїв Дніпра, 67А",
+    postalCode: "04205",
+    addressLocality: "Київ",
+    addressCountry: "UA",
+  },
+  openingHoursSpecification: [
+    { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "19:00" },
+    { "@type": "OpeningHoursSpecification", dayOfWeek: "Saturday", opens: "09:00", closes: "15:00" },
+  ],
+  sameAs: [contacts.telegram],
+};
+---
+<Base lang="uk" title={title} description={description} ogLocale="uk_UA">
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <Header slot="header" />
+  <Hero />
+  <Catalog />
+  <Delivery />
+  <Guarantee />
+  <Sto />
+  <Contacts />
+  <Footer slot="footer" />
+  <ContactBar slot="footer" />
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</Base>

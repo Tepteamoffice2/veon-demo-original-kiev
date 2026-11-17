@@ -1,0 +1,130 @@
+---
+import { Picture } from "astro:assets";
+import logo from "../assets/logo-original-kiev.png";
+import FutureLink from "./FutureLink.astro";
+import Icon from "./Icon.astro";
+import { contacts, nav, soon } from "../data/site";
+---
+<header class="site-header" data-rec="R-002">
+  <div class="container site-header__row">
+    <a class="logo" href="#top" aria-label="Original Kiev — автомагазин запчастин, на початок сторінки">
+      <Picture src={logo} formats={["avif", "webp"]} alt="Original Kiev — автомагазин запчастин" width={60} height={49} loading="eager" fetchpriority="high" data-rec="R-009" />
+    </a>
+
+    <nav class="nav" aria-label="Головне меню">
+      <ul class="nav__list" role="list">
+        {nav.map((item) => <li><a class="nav__link" href={item.href}>{item.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <a class="header-phone" href={contacts.phoneMain.href}>{contacts.phoneMain.label}</a>
+      <a class="icon-btn icon-btn--desk" href={contacts.viber} aria-label="Написати у Viber"><Icon name="viber" /></a>
+      <a class="icon-btn icon-btn--desk" href={contacts.telegram} aria-label="Написати в Telegram" rel="noopener"><Icon name="telegram" /></a>
+      <div class="lang" aria-label="Мова сайту">
+        <span class="lang__current" aria-current="true" title="Українська">UA</span>
+        <FutureLink note={soon} class="lang__other">RU</FutureLink>
+      </div>
+      <a class="icon-btn icon-btn--mob" href={contacts.phoneMain.href} aria-label={`Подзвонити ${contacts.phoneMain.label}`}><Icon name="phone" /></a>
+      <button class="icon-btn icon-btn--mob menu-toggle" type="button" popovertarget="mobile-menu" aria-label="Відкрити меню"><Icon name="menu" /></button>
+    </div>
+  </div>
+</header>
+
+<div id="mobile-menu" class="menu-panel" popover aria-label="Меню" data-rec="R-002">
+  <div class="menu-panel__top">
+    <span class="menu-panel__title">Меню</span>
+    <button class="icon-btn menu-panel__close" type="button" popovertarget="mobile-menu" popovertargetaction="hide" aria-label="Закрити меню"><Icon name="close" /></button>
+  </div>
+  <nav aria-label="Меню для мобільного">
+    <ul class="menu-panel__list" role="list">
+      {nav.map((item) => <li><a class="menu-panel__link" href={item.href} data-menu-close>{item.label}</a></li>)}
+    </ul>
+  </nav>
+  <div class="menu-panel__contact">
+    <a class="btn btn--ink" href={contacts.viber}><Icon name="viber" />Viber</a>
+    <a class="btn btn--outline" href={contacts.telegram} rel="noopener"><Icon name="telegram" />Telegram</a>
+    <a class="btn btn--outline" href={contacts.phoneMain.href}><Icon name="phone" />Дзвінок</a>
+  </div>
+  <p class="menu-panel__meta">{contacts.street}, Оболонь<br />Пн–Пт 9:00–19:00, Сб 9:00–15:00</p>
+</div>
+
+<script>
+  const panel = document.getElementById("mobile-menu") as (HTMLElement & { hidePopover?: () => void }) | null;
+  panel?.querySelectorAll("[data-menu-close]").forEach((link) => {
+    link.addEventListener("click", () => panel.hidePopover?.());
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .site-header__row {
+    height: var(--header-h);
+    display: flex; align-items: center; gap: var(--s-5);
+  }
+  .logo { display: inline-flex; flex: none; text-decoration: none; }
+  .logo :global(img) { width: 52px; height: auto; }
+  .nav { display: none; }
+  .nav__list { display: flex; gap: var(--s-1); margin: 0; padding: 0; list-style: none; }
+  .nav__link {
+    display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 var(--s-3);
+    font-size: 0.9375rem; font-weight: 400; text-decoration: none; color: var(--color-text);
+    background-image: linear-gradient(var(--color-accent), var(--color-accent));
+    background-size: 0 2px; background-position: var(--s-3) calc(100% - 8px); background-repeat: no-repeat;
+    transition: background-size var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .nav__link:hover { color: var(--color-accent-hover); background-size: calc(100% - 2 * var(--s-3)) 2px; }
+  .site-header__actions { margin-left: auto; display: flex; align-items: center; gap: var(--s-2); }
+  .header-phone {
+    display: none; font-weight: 600; font-size: 0.9375rem; text-decoration: none; white-space: nowrap;
+    min-height: var(--tap); align-items: center; padding: 0 var(--s-2);
+  }
+  .header-phone:hover { color: var(--color-accent-hover); }
+  .icon-btn--desk { display: none; }
+  .lang { display: none; align-items: center; gap: var(--s-1); font-size: var(--fs-small); margin-left: var(--s-2); }
+  .lang__current { font-weight: 600; padding: var(--s-1) var(--s-2); border: 1px solid var(--color-text); }
+  .lang :global(.lang__other) { padding: var(--s-1) var(--s-2); color: var(--color-muted); min-height: var(--tap); }
+  .lang :global(.future-link__note[aria-hidden="true"]) { left: auto; right: 0; transform: translate(0, -4px); }
+  .lang :global(.future-link:hover .future-link__note), .lang :global(.future-link:focus-visible .future-link__note) { transform: translate(0, 0); }
+
+  @media (min-width: 1024px) {
+    .logo :global(img) { width: 60px; }
+    .nav { display: block; }
+    .header-phone { display: inline-flex; }
+    .icon-btn--desk { display: inline-grid; }
+    .lang { display: inline-flex; }
+    .icon-btn--mob { display: none; }
+  }
+  @media (min-width: 1024px) and (max-width: 1179.98px) {
+    .site-header__row { gap: var(--s-3); }
+    .nav__link { padding: 0 var(--s-2); font-size: 0.875rem; }
+    .lang { display: none; }
+  }
+
+  /* Mobile menu: native popover, works without scripts; links close it with a few lines of JS. */
+  .menu-panel {
+    position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none;
+    margin: 0; padding: 0 var(--space) var(--s-6); border: 0;
+    background: var(--color-bg); color: var(--color-text);
+    overflow-y: auto;
+    display: none; flex-direction: column; gap: var(--s-6);
+  }
+  .menu-panel:popover-open { display: flex; }
+  .menu-panel::backdrop { background: var(--color-scrim); }
+  .menu-panel__top { height: var(--header-h); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-line); }
+  .menu-panel__title { font-weight: 600; }
+  .menu-panel__list { list-style: none; margin: 0; padding: 0; }
+  .menu-panel__link {
+    display: flex; align-items: center; min-height: 56px; text-decoration: none;
+    font-family: var(--font-display); font-weight: 600; font-size: 1.75rem; line-height: 1.1;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .menu-panel__link:hover { color: var(--color-accent-hover); }
+  .menu-panel__contact { display: grid; gap: var(--s-2); }
+  .menu-panel__meta { margin: 0; color: var(--color-muted); font-size: var(--fs-small); }
+  @media (min-width: 1024px) { .menu-panel { display: none !important; } }
+</style>

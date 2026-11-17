@@ -1,0 +1,165 @@
+---
+import Section from "./Section.astro";
+import FutureLink from "./FutureLink.astro";
+import Icon from "./Icon.astro";
+import { brands, brandGroups, systems, contacts, soon } from "../data/site";
+---
+<Section id="catalog" rec="R-003" class="catalog">
+  <div class="container">
+    <div class="sku">
+      <label class="sku__label" for="sku">Знаєте артикул?</label>
+      <div class="sku__row">
+        <input class="sku__input" id="sku" type="search" name="sku" autocomplete="off" spellcheck="false" placeholder="Номер деталі" aria-describedby="sku-note" />
+        <FutureLink note="Пошук з'явиться в повній версії сайту" class="future-link--btn sku__btn">Знайти</FutureLink>
+      </div>
+      <p class="sku__alt" id="sku-note">
+        Поки що просто
+        <a class="text-link" href={contacts.viber}>надішліть артикул у Viber</a>
+        — перевіримо наявність і термін.
+      </p>
+    </div>
+
+    <div class="catalog__grid">
+      <div class="catalog__main">
+        <div class="section-head">
+          <h2>Ваша марка&nbsp;— серед сорока</h2>
+          <p>Оригінальні запчастини і якісні аналоги для 40 марок легкових авто.</p>
+        </div>
+
+        <div class="filter js-only js-only--flex" role="group" aria-label="Показати марки за походженням">
+          {brandGroups.map((g, i) => (
+            <button class="filter__btn" type="button" data-filter={g.id} aria-pressed={i === 0 ? "true" : "false"}>{g.label}</button>
+          ))}
+        </div>
+
+        <h3 class="visually-hidden">Марки авто</h3>
+        <ul class="brands" role="list" data-brands>
+          {brands.map((b) => (
+            <li class="brands__item" data-group={b.group}>
+              <FutureLink note={soon} class="brands__link">{b.name}</FutureLink>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <aside class="systems" aria-labelledby="systems-title">
+        <h3 class="systems__title" id="systems-title">Або за системою авто</h3>
+        <ul class="systems__list" role="list">
+          {systems.map((s) => <li><FutureLink note={soon} class="systems__link">{s}</FutureLink></li>)}
+        </ul>
+      </aside>
+    </div>
+
+    <div class="catalog__end">
+      <p class="catalog__end-text">Не знайшли свою модель? Надішліть VIN&nbsp;— підберемо.</p>
+      <div class="catalog__end-actions">
+        <a class="btn btn--ink" href={contacts.viber}><Icon name="viber" />Viber</a>
+        <a class="btn btn--outline" href={contacts.telegram} rel="noopener"><Icon name="telegram" />Telegram</a>
+      </div>
+    </div>
+  </div>
+</Section>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-filter]");
+  const items = document.querySelectorAll<HTMLElement>("[data-brands] [data-group]");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const g = btn.dataset.filter;
+      buttons.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+      items.forEach((it) => it.classList.toggle("is-dim", g !== "all" && it.dataset.group !== g));
+    });
+  });
+</script>
+
+<style>
+  .catalog { padding-block: var(--s-7) var(--section-pad); }
+
+  /* Article search row: the field is real, the search page comes with the full site. */
+  .sku {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--s-3) var(--s-6);
+    padding-bottom: var(--s-7); margin-bottom: var(--section-pad);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .sku__label { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); }
+  .sku__row { display: flex; gap: 0; min-width: 0; }
+  .sku__input {
+    flex: 1; min-width: 0; min-height: var(--btn-h); padding: 0 var(--s-4);
+    font: 400 var(--fs-body)/1 var(--font-body); color: var(--color-text);
+    background: var(--color-bg); border: 2px solid var(--color-text); border-right: 0; border-radius: var(--radius);
+  }
+  .sku__input::placeholder { color: var(--color-muted); }
+  .sku__input:hover { background: var(--color-surface); }
+  .sku :global(.sku__btn) { border: 2px solid var(--color-text); }
+  .sku :global(.sku__btn .future-link__note[aria-hidden="true"]) { left: auto; right: 0; transform: translate(0, -4px); }
+  .sku :global(.sku__btn:hover .future-link__note), .sku :global(.sku__btn:focus-visible .future-link__note) { transform: translate(0, 0); }
+  .sku__alt { grid-column: 2; color: var(--color-muted); }
+  .sku__alt .text-link { color: var(--color-text); min-height: 0; display: inline; }
+
+  .catalog__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--s-7) var(--s-5); align-items: start; }
+  .catalog__main { grid-column: 1 / span 9; display: grid; gap: var(--s-6); }
+  .systems { grid-column: 10 / -1; position: sticky; top: calc(var(--header-h) + var(--s-5)); padding-left: var(--s-5); border-left: 2px solid var(--color-accent); }
+
+  .filter { flex-wrap: wrap; gap: var(--s-2); }
+  .filter__btn {
+    min-height: var(--tap); padding: 0 var(--s-4);
+    font: 400 0.9375rem/1 var(--font-body); color: var(--color-text);
+    background: transparent; border: 1px solid var(--color-line-strong); border-radius: var(--radius); cursor: pointer;
+    transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  .filter__btn:hover { border-color: var(--color-text); }
+  .filter__btn[aria-pressed="true"] { background: var(--color-ink); color: var(--color-on-dark); border-color: var(--color-ink); }
+
+  /* The index: 40 brands set in the display face, a dense list to scan, not a wall of logos. */
+  .brands {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 var(--s-5);
+    border-top: 1px solid var(--color-line);
+  }
+  .brands__item { border-bottom: 1px solid var(--color-line); transition: opacity 200ms var(--ease-out); }
+  .brands__item.is-dim { opacity: .3; }
+  .brands :global(.brands__link) {
+    display: flex; width: 100%; min-height: 3.5rem; padding: var(--s-2) 0;
+    font-family: var(--font-display); font-weight: 600; font-size: clamp(1.125rem, 0.6rem + 1vw, 1.625rem); line-height: 1.05; white-space: nowrap;
+    color: var(--color-text);
+    transition: color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  }
+  .brands :global(.brands__link:hover) { color: var(--color-accent); transform: translateX(4px); }
+  .brands :global(.future-link__note[aria-hidden="true"]), .systems :global(.future-link__note[aria-hidden="true"]) { left: 0; transform: translate(0, -4px); top: calc(100% - 4px); }
+  .brands :global(.future-link:hover .future-link__note), .brands :global(.future-link:focus-visible .future-link__note),
+  .systems :global(.future-link:hover .future-link__note), .systems :global(.future-link:focus-visible .future-link__note) { transform: translate(0, 0); }
+
+  .systems__title { font-family: var(--font-body); font-size: var(--fs-body); font-weight: 600; margin-bottom: var(--s-3); }
+  .systems__list { list-style: none; margin: 0; padding: 0; display: grid; }
+  .systems :global(.systems__link) { min-height: var(--tap); font-size: var(--fs-body); color: var(--color-text); }
+  .systems :global(.systems__link:hover) { color: var(--color-accent); }
+
+  .catalog__end {
+    margin-top: var(--s-8); padding-top: var(--s-6); border-top: 2px solid var(--color-text);
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-4) var(--s-6);
+  }
+  .catalog__end-text { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); line-height: 1.15; max-width: 28ch; }
+  .catalog__end-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+
+  @media (max-width: 1023.98px) {
+    .catalog__main, .systems { grid-column: 1 / -1; }
+    .systems { position: static; padding-left: var(--s-4); }
+    .systems__list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-4); }
+    .brands { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 399.98px) {
+    .brands :global(.brands__link) { font-size: 1rem; }
+  }
+  @media (max-width: 767.98px) {
+    .sku { grid-template-columns: minmax(0, 1fr); padding-bottom: var(--s-6); }
+    .sku__alt { grid-column: 1; }
+    .brands { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-4); }
+    .brands :global(.brands__link) { min-height: 3rem; }
+    .filter__btn { padding: 0 var(--s-3); }
+    .systems__list { grid-template-columns: minmax(0, 1fr); }
+    .catalog__end-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .brands__item, .brands :global(.brands__link) { transition: none; }
+  }
+</style>

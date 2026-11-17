@@ -1,0 +1,48 @@
+---
+// Mobile only: sticky contact bar that appears after the first screen. Without scripts it is always shown.
+import Icon from "./Icon.astro";
+import { contacts } from "../data/site";
+---
+<nav class="bar" aria-label="Швидкий зв'язок" data-rec="R-007" data-bar>
+  <a class="bar__btn bar__btn--main" href={contacts.viber}><Icon name="viber" size={20} />Viber</a>
+  <a class="bar__btn" href={contacts.telegram} rel="noopener"><Icon name="telegram" size={20} />Telegram</a>
+  <a class="bar__btn" href={contacts.phoneMain.href}><Icon name="phone" size={20} />Дзвінок</a>
+</nav>
+
+<script>
+  const bar = document.querySelector<HTMLElement>("[data-bar]");
+  const hero = document.getElementById("vin");
+  if (bar && hero && "IntersectionObserver" in window) {
+    bar.classList.add("is-hidden");
+    new IntersectionObserver(([e]) => {
+      const past = !e.isIntersecting && e.boundingClientRect.top < 0;
+      bar.classList.toggle("is-hidden", !past);
+      bar.toggleAttribute("inert", !past);
+    }).observe(hero);
+  }
+</script>
+
+<style>
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    height: var(--bar-h); padding-bottom: env(safe-area-inset-bottom);
+    background: var(--color-bg); border-top: 1px solid var(--color-line-strong);
+    transition: transform 250ms var(--ease-out), opacity 250ms var(--ease-out);
+  }
+  .bar.is-hidden { transform: translateY(100%); opacity: 0; pointer-events: none; }
+  .bar__btn {
+    display: flex; align-items: center; justify-content: center; gap: var(--s-2);
+    min-height: 48px; font-weight: 600; font-size: 0.9375rem; text-decoration: none; color: var(--color-text);
+    border-left: 1px solid var(--color-line);
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+  .bar__btn:first-child { border-left: 0; }
+  .bar__btn:hover { background: var(--color-surface); }
+  .bar__btn:active { background: var(--color-line); }
+  .bar__btn--main { background: var(--color-ink); color: var(--color-on-dark); }
+  .bar__btn--main:hover { background: var(--color-ink-hover); }
+  .bar__btn:focus-visible { outline-offset: -4px; }
+  @media (min-width: 768px) { .bar { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .bar { transition: none; } }
+</style>

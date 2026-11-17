@@ -1,0 +1,49 @@
+---
+import Section from "./Section.astro";
+import FutureLink from "./FutureLink.astro";
+import Icon from "./Icon.astro";
+import { contacts, soon } from "../data/site";
+---
+<Section id="guarantee" rec="R-004" class="guarantee">
+  <div class="container">
+    <h2 class="guarantee__title">Гарантія і повернення</h2>
+    <div class="terms">
+      <div class="term term--a">
+        <p class="term__num" aria-hidden="true">6 міс.</p>
+        <h3 class="term__head"><span class="visually-hidden">6 місяців — </span>гарантія щонайменше</h3>
+        <p class="term__text">Мінімальна гарантія — 6 місяців на умовах публічної оферти. Для деталей, що потребують установлення, — від дати монтажу або 20&nbsp;000 км; потрібні заказ-наряд СТО і акт рекламації. Витратні матеріали (колодки, ремені, свічки) — виняток.</p>
+      </div>
+      <div class="term term--b">
+        <p class="term__num" aria-hidden="true">14 днів</p>
+        <h3 class="term__head"><span class="visually-hidden">14 днів — </span>на повернення чи обмін</h3>
+        <p class="term__text">Без слідів монтажу; гроші повертаємо до 7 банківських днів. Не повертаються електрика (свічки, датчики, насоси, форсунки, котушки, стартери, АКБ, генератори), оливи й рідини, товари із завдатком і під замовлення.</p>
+      </div>
+    </div>
+    <div class="guarantee__end">
+      <FutureLink note={soon} class="future-link--text">Умови гарантії та повернення повністю</FutureLink>
+      <a class="btn btn--outline desk-only" href={contacts.viber}><Icon name="viber" />Запитати про гарантію у Viber</a>
+    </div>
+  </div>
+</Section>
+
+<style>
+  .guarantee { background: var(--color-sky); color: var(--color-ink); padding-block: var(--section-pad); }
+  .terms { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--s-6) var(--s-5); margin-top: var(--s-7); }
+  .term { display: grid; gap: var(--s-3); align-content: start; }
+  .term--a { grid-column: 1 / span 5; }
+  .term--b { grid-column: 7 / span 6; margin-top: var(--s-10); }
+  .term__num {
+    font-family: var(--font-display); font-weight: 700; font-size: var(--fs-giant); line-height: .9; letter-spacing: -0.03em;
+    white-space: nowrap;
+  }
+  .term__head { font-size: var(--fs-h3); }
+  .term__text { max-width: 50ch; }
+  .guarantee__end { margin-top: var(--s-7); display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4) var(--s-6); }
+  .guarantee :global(.future-link__note[aria-hidden="true"]) { left: 0; transform: translate(0, -4px); }
+  .guarantee :global(.future-link:hover .future-link__note), .guarantee :global(.future-link:focus-visible .future-link__note) { transform: translate(0, 0); }
+
+  @media (max-width: 767.98px) {
+    .terms { grid-template-columns: minmax(0, 1fr); gap: var(--s-7); }
+    .term--a, .term--b { grid-column: 1; margin-top: 0; }
+  }
+</style>
